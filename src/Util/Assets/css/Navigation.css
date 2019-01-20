@@ -1,0 +1,15 @@
+.headerFontColor {
+    color: #ffffff;
+}
+.customButton{
+    background: #fa6c1e !important;
+    padding: 0 !important;
+}
+
+.customButton:active{
+    background: #f9742a !important;
+}
+
+.customGrid:active{
+    background: #f9742a !important;
+}

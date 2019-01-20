@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import Missing from './Missing'
 import * as serviceWorker from './serviceWorker';
-import { BrowserRouter ,Switch} from 'react-router-dom'
+import { BrowserRouter ,Switch,Redirect} from 'react-router-dom'
 import {Route} from "react-router-dom";
 import DashboardScreen from "./ViewScreens/DashboardScreen";
 import LoginScreen from './ViewScreens/LoginScreen'
@@ -16,10 +16,11 @@ ReactDOM.render(
 
             <Route exact path='/' render={() => {
                 if (isAuthenticated()) {
-                    return <DashboardScreen />
+                    return <Redirect to='/dashboard'/>
+
                 }
                 else {
-                    return <LoginScreen />
+                    return <Redirect to='/login'/>
                 }
             }} />
 
@@ -28,12 +29,12 @@ ReactDOM.render(
                     return <DashboardScreen />
                 }
                 else {
-                    return <LoginScreen />
+                    return <Redirect to='/login'/>
                 }
             }} />
             <Route exact path='/login' render={() => {
                 if (isAuthenticated()) {
-                    return <DashboardScreen />
+                    return <Redirect to='/dashboard'/>
                 }
                 else {
                     return <LoginScreen />

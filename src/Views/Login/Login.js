@@ -44,8 +44,8 @@ class Login extends Component {
                                 />
 
                                 <Button onClick={()=>
-                                {this.state.backendCom('login',this.state.userName, this.state.password)}
-                                } color='teal' fluid size='large'>
+                                {this.state.backendCom('login',this.state.userName, this.state.password)}}
+                                        color='teal' fluid size='large'>
                                     Login
                                 </Button>
                             </Segment>

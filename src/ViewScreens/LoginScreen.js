@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import Login from "../Views/Login/Login";
 import PageLoader from "../Util/Components/Pageloader"
-import {authenticate} from "../RestServices/PullServices";
+import {authenticate} from "../RestServices/AuthServices";
+import {withRouter} from "react-router-dom";
 
 class LoginScreen extends Component {
     constructor(props) {
@@ -28,12 +29,21 @@ class LoginScreen extends Component {
     };
 
     async login(userName, password) {
-
         this.setState({liveComponent: <PageLoader/>});
-        if (await authenticate(userName, password)['status'] === 200) {
-            this.props.history.push('/dashboard')
-        } else {
-            this.setState({liveComponent: <Login loginData={false} frontEndCommunicator={this.frontEndCommunicator}/>})
+        let response = null;
+        await authenticate(userName, password).then((result)=>{response= result['status']});
+        switch (response){
+            case 200:
+                this.props.history.push('/dashboard');
+                break;
+            case 401:
+                this.setState({liveComponent: <Login loginData={false} frontEndCommunicator={this.frontEndCommunicator}/>});
+                break;
+            case 280:
+                this.setState({liveComponent: <Login loginData={false} frontEndCommunicator={this.frontEndCommunicator}/>});
+                break;
+            default:
+                this.errorScreen()
         }
     }
 
@@ -51,10 +61,11 @@ class LoginScreen extends Component {
     render() {
         return (
             <div>
+
                 {this.state.liveComponent}
             </div>
         );
     }
 }
 
-export default LoginScreen;
+export default withRouter(LoginScreen);
