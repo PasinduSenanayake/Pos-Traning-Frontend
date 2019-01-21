@@ -2,12 +2,17 @@ import React, {Component} from 'react';
 import {
     Grid, Header, Image, Table, Button, Pagination,Modal,Container,Divider,Icon
 } from 'semantic-ui-react'
+import EditOrder from "./editOrder";
 
 class ViewOrders extends Component {
 
     constructor(props) {
         super(props)
-        this.state = {}
+        this.state = {
+            editView:false,
+            editViewData:{},
+            backendCom:{}
+        }
     }
 
 
@@ -46,126 +51,7 @@ class ViewOrders extends Component {
 
 
             <div>
-
-                <Modal open={false} size={'small'}>
-                    <Modal.Header >
-                        <Container textAlign='center'>Order Details</Container>
-                    </Modal.Header>
-                    <Modal.Content >
-                        <Container>
-                        <Header as='h4' floated='left'>
-                            Order Id - 3479384734739798
-                        </Header>
-                        <Header as='h4' floated='right'>
-                            Order Status - Incomplete
-                        </Header>
-                        </Container>
-
-                    </Modal.Content>
-                    <Modal.Content >
-                        <Container>
-                            <Header as='h4' floated='left'>
-                                Order Created date - 3933/2323/323
-                            </Header>
-                            <Header as='h4' floated='right'>
-                                Order Completed date - 3933/2323/323
-                            </Header>
-                        </Container>
-                    </Modal.Content>
-                    <br/>
-                    <Divider horizontal>
-                        <Header as='h4'>
-                            <Icon name='tag' />
-                           Item Details
-                        </Header>
-                    </Divider>
-
-
-                    <Modal.Content >
-                            <Table basic='very' celled >
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell>Item</Table.HeaderCell>
-                                        <Table.HeaderCell>Quantity</Table.HeaderCell>
-                                        <Table.HeaderCell>Amount</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-                                    <Table.Row>
-                                        <Table.Cell>
-                                            <Header as='h4' image>
-                                                <Image src='/images/avatar/small/lena.png' rounded size='mini' />
-                                                <Header.Content>
-                                                    Lena
-                                                    <Header.Subheader>Human Resources</Header.Subheader>
-                                                </Header.Content>
-                                            </Header>
-                                        </Table.Cell>
-                                        <Table.Cell>22</Table.Cell>
-                                        <Table.Cell>Rs. 500.00</Table.Cell>
-                                    </Table.Row>
-                                    <Table.Row>
-                                        <Table.Cell>
-                                            <Header as='h4' image>
-                                                <Image src='/images/avatar/small/matthew.png' rounded size='mini' />
-                                                <Header.Content>
-                                                    Matthew
-                                                    <Header.Subheader>Fabric Design</Header.Subheader>
-                                                </Header.Content>
-                                            </Header>
-                                        </Table.Cell>
-                                        <Table.Cell>15</Table.Cell>
-                                        <Table.Cell>Rs. 500.00</Table.Cell>
-                                    </Table.Row>
-                                    <Table.Row>
-                                        <Table.Cell>
-                                            <Header as='h4' image>
-                                                <Image src='/images/avatar/small/lindsay.png' rounded size='mini' />
-                                                <Header.Content>
-                                                    Lindsay
-                                                    <Header.Subheader>Entertainment</Header.Subheader>
-                                                </Header.Content>
-                                            </Header>
-                                        </Table.Cell>
-                                        <Table.Cell>12</Table.Cell>
-                                        <Table.Cell>Rs. 500.00</Table.Cell>
-                                    </Table.Row>
-                                    <Table.Row>
-                                        <Table.Cell>
-                                            <Header as='h4' image>
-                                                <Image src='/images/avatar/small/mark.png' rounded size='mini' />
-                                                <Header.Content>
-                                                    Mark
-                                                    <Header.Subheader>Executive</Header.Subheader>
-                                                </Header.Content>
-                                            </Header>
-                                        </Table.Cell>
-                                        <Table.Cell>11</Table.Cell>
-                                        <Table.Cell>Rs. 500.00</Table.Cell>
-                                    </Table.Row>
-                                    <Table.Row >
-                                        <Table.Cell/>
-                                        <Table.Cell>
-                                            <Header as='h4' image>
-                                                Total Amount
-                                            </Header>
-                                        </Table.Cell>
-
-                                        <Table.Cell>
-                                            <Header as='h4' image>
-                                               Rs. 10000.00
-                                            </Header>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
-                            </Table>
-                    </Modal.Content>
-                    <Modal.Actions >
-                        <Button negative icon='delete' labelPosition='right' content='Delete' />
-                        <Button positive icon='edit' labelPosition='right' content='Edit' />
-                    </Modal.Actions>
-                </Modal>
+                <EditOrder visibility ={this.state.editView} componentData={this.state.editViewData} communicator={this.state.backendCom}/>
                 <Grid centered={true} columns={3}>
                     <Grid.Row centered columns={1}>
                         <Grid.Column width={2} verticalAlign={'middle'} textAlign={'right'}>
@@ -191,7 +77,7 @@ class ViewOrders extends Component {
                                     {/*{Object.values(this.state.drivers).map(this.getTripTableRows)}*/}
                                     <Table.Row key={"testOrder"}>
                                         <Table.Cell collapsing textAlign='center'>
-                                            <Button icon='edit' /> &nbsp; &nbsp;
+                                            <Button icon='edit' onClick={()=>{this.setState({editView:true})}} /> &nbsp; &nbsp;
                                         </Table.Cell>
                                         <Table.Cell  selectable>
                                             <Header as='h4' textAlign='center'>

@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import ViewOrders from "../Views/Dashboard/viewOrders";
+import NewOrder from "../Views/Dashboard/newOrder"
 import EditOrder from "../Views/Dashboard/editOrder"
 import NavigationSimple from "../Util/Components/Navigation";
 
-import {authenticate} from "../RestServices/PullServices";
 
 class DashboardScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            liveComponent: <ViewOrders/>,
+            liveComponent: <NewOrder/>,
         };
     }
 
@@ -30,7 +30,9 @@ class DashboardScreen extends Component {
     render() {
         return (
             <div>
+
                 <NavigationSimple/>
+                <br/>
                     {this.state.liveComponent}
             </div>
         );

@@ -1,88 +1,103 @@
 import React, {Component} from 'react';
-import {
-    Grid, Header, Image, Table, Button, Pagination,Modal,Container,Divider,Icon
+import { Dropdown,Input,
+    Grid, Header, Image, Table, Button, Pagination,Segment,Container,Divider,Icon
 } from 'semantic-ui-react'
 
 class editOrder extends Component {
 
     constructor(props) {
-        super(props)
-        this.state = {}
+        super(props);
+        this.state = {
+            viewVisibility:props['visibility']
+        }
     }
 
 
-    getTripTableRows = (rowObj) => {
-        return (
-            <Table.Row key={rowObj['driverId']}>
-                <Table.Cell textAlign='center'>
-                    <Grid centered={true} columns={2}>
-                        <Grid.Row verticalAlign="middle">
-                            <Grid.Column>
-                                <Image src={rowObj['image']} circular size={"tiny"} centered/>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
-                </Table.Cell>
-                <Table.Cell selectable>
-                    <Header as='h4' textAlign='center'>
-                    </Header>
-                </Table.Cell>
-                <Table.Cell textAlign='center'> {rowObj['licenseNo']}</Table.Cell>
-                <Table.Cell textAlign='center'>
-                    {rowObj['contactNumber']}
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                    <b>{rowObj['email']}</b>
-                </Table.Cell>
-            </Table.Row>
-        );
-    };
-    searchTableUpdate = (updatedState) => {
-        this.setState({drivers: this.setDriverTableRows(updatedState, 4, 1), fetchedDataSet: updatedState})
-    };
-
     render() {
         return (
-            <div>
-                <Modal open={false} size={'small'}>
-                    <Modal.Header >
-                        <Container textAlign='center'>Order Details</Container>
-                    </Modal.Header>
-                    <Modal.Content >
-                        <Container>
-                            <Header as='h4' floated='left'>
-                                Order Id - 3479384734739798
-                            </Header>
-                            <Header as='h4' floated='right'>
-                                Order Status - Incomplete
-                            </Header>
-                        </Container>
 
-                    </Modal.Content>
-                    <Modal.Content >
-                        <Container>
-                            <Header as='h4' floated='left'>
-                                Order Created date - 3933/2323/323
-                            </Header>
-                            <Header as='h4' floated='right'>
-                                Order Completed date - 3933/2323/323
-                            </Header>
+            <Grid>
+                <Grid.Row>
+                    <Grid.Column width={3}>
+                        <Container textAlign='right'>
+                            <Button positive icon='reply' labelPosition='right' content='back' />
                         </Container>
-                    </Modal.Content>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <Container textAlign='center'>
+                            <Header>Order Details </Header>
+                        </Container>
+                    </Grid.Column>
+
+                </Grid.Row>
+                <Grid.Row >
+                    <Grid.Column width={2}>
+                    </Grid.Column>
+                    <Grid.Column width={12}>
+               <Segment padded={'very'}>
+
+                   <Grid columns='two'>
+                       <Grid.Row>
+                           <Grid.Column>
+                               <h4>Order Id - 3479384734739798</h4>
+                           </Grid.Column>
+                           <Grid.Column textAlign={'right'}>
+                               <h4>Order Status - Incomplete</h4>
+                           </Grid.Column>
+                       </Grid.Row>
+
+                       <Grid.Row>
+                           <Grid.Column>
+                               <h4> Order Created date - 3933/2323/323</h4>
+                           </Grid.Column>
+                           <Grid.Column textAlign={'right'}>
+                               <h4> Order Completed date - N/A</h4>
+                           </Grid.Column>
+                       </Grid.Row>
+                   </Grid>
+
                     <br/>
+                    <Divider horizontal>
+                        <Header as='h4'>
+                            <Icon name='add to cart' />
+                            Add New Item
+                        </Header>
+                    </Divider>
+
+                       <Grid>
+                           <Grid.Row >
+                               <Grid.Column width={6}>
+                                   <Dropdown
+                                       fluid
+                                       selection
+                                       search={true}
+                                       placeholder='Search Items'
+                                   />
+                               </Grid.Column>
+                               <Grid.Column width={3} verticalAlign={'middle'}>
+                                   Per Item Price : N/A
+                               </Grid.Column>
+                               <Grid.Column width={4} verticalAlign={'middle'}>
+                                   <Input  placeholder='Quantity' />
+                               </Grid.Column>
+                               <Grid.Column width={3} verticalAlign={'middle'}>
+                                   <Button positive icon='add' labelPosition='left' content='Add Item' />
+                               </Grid.Column>
+                           </Grid.Row>
+                       </Grid>
+
                     <Divider horizontal>
                         <Header as='h4'>
                             <Icon name='tag' />
                             Item Details
                         </Header>
                     </Divider>
-
-
-                    <Modal.Content >
-                        <Table basic='very' celled >
+                        <Table basic='very' celled  >
                             <Table.Header>
                                 <Table.Row>
+                                    <Table.HeaderCell/>
                                     <Table.HeaderCell>Item</Table.HeaderCell>
+                                    <Table.HeaderCell>Per Item Price</Table.HeaderCell>
                                     <Table.HeaderCell>Quantity</Table.HeaderCell>
                                     <Table.HeaderCell>Amount</Table.HeaderCell>
                                 </Table.Row>
@@ -90,6 +105,9 @@ class editOrder extends Component {
 
                             <Table.Body>
                                 <Table.Row>
+                                    <Table.Cell collapsing textAlign='center'>
+                                        <Button icon='trash' color={'red'} />
+                                    </Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
                                             <Image src='/images/avatar/small/lena.png' rounded size='mini' />
@@ -100,9 +118,13 @@ class editOrder extends Component {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>22</Table.Cell>
+                                    <Table.Cell collapsing><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
                                     <Table.Cell>Rs. 500.00</Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
+                                    <Table.Cell collapsing textAlign='center'>
+                                        <Button icon='trash' color={'red'} />
+                                    </Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
                                             <Image src='/images/avatar/small/matthew.png' rounded size='mini' />
@@ -113,9 +135,13 @@ class editOrder extends Component {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>15</Table.Cell>
+                                    <Table.Cell><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
                                     <Table.Cell>Rs. 500.00</Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
+                                    <Table.Cell collapsing textAlign='center'>
+                                        <Button icon='trash' color={'red'} />
+                                    </Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
                                             <Image src='/images/avatar/small/lindsay.png' rounded size='mini' />
@@ -126,9 +152,13 @@ class editOrder extends Component {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>12</Table.Cell>
+                                    <Table.Cell><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
                                     <Table.Cell>Rs. 500.00</Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
+                                    <Table.Cell collapsing textAlign='center'>
+                                        <Button icon='trash' color={'red'} />
+                                    </Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
                                             <Image src='/images/avatar/small/mark.png' rounded size='mini' />
@@ -139,9 +169,12 @@ class editOrder extends Component {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>11</Table.Cell>
+                                    <Table.Cell><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
                                     <Table.Cell>Rs. 500.00</Table.Cell>
                                 </Table.Row>
                                 <Table.Row >
+                                    <Table.Cell/>
+                                    <Table.Cell/>
                                     <Table.Cell/>
                                     <Table.Cell>
                                         <Header as='h4' image>
@@ -157,90 +190,23 @@ class editOrder extends Component {
                                 </Table.Row>
                             </Table.Body>
                         </Table>
-                    </Modal.Content>
-                    <Modal.Actions >
-                        <Button negative icon='delete' labelPosition='right' content='Delete' />
-                        <Button positive icon='edit' labelPosition='right' content='Edit' />
-                    </Modal.Actions>
-                </Modal>
-                <Grid centered={true} columns={3}>
-                    <Grid.Row centered columns={1}>
-                        <Grid.Column width={2} verticalAlign={'middle'} textAlign={'right'}>
-                            <p> Order Id </p>
-                        </Grid.Column>
-                        {/*<Grid.Column width={2} verticalAlign={'middle'}>*/}
-                        {/*<TableSearchElement searchData={this.state.searchDataSet}*/}
-                        {/*searchField={'firstName'}*/}
-                        {/*updateSearch={(updatedStates) => {*/}
-                        {/*this.searchTableUpdate(updatedStates)}*/}
-                        {/*}*/}
-                        {/*/>*/}
-                        {/*</Grid.Column>*/}
-                        <Grid.Column width={10} verticalAlign={'middle'}>
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row centered={true} columns={1}>
-                        <Grid.Column width={12} verticalAlign={'middle'}>
-                            <Table compact definition singleLine celled>
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell />
-                                        <Table.HeaderCell textAlign='center'>Item Id</Table.HeaderCell>
-                                        <Table.HeaderCell textAlign='center'>Item Name</Table.HeaderCell>
-                                        <Table.HeaderCell textAlign='center'>Quantity</Table.HeaderCell>
-                                        <Table.HeaderCell textAlign='center'>Total Amount</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {/*{Object.values(this.state.drivers).map(this.getTripTableRows)}*/}
-                                    <Table.Row key={"testOrder"}>
-                                        <Table.Cell collapsing textAlign='center'>
-                                            <Button color='red' icon='delete' /> &nbsp; &nbsp;
-                                        </Table.Cell>
-                                        <Table.Cell  selectable>
-                                            <Header as='h4' textAlign='center'>
-                                                TestId232323232
-                                            </Header>
-                                        </Table.Cell>
-                                        <Table.Cell textAlign='center'> Test</Table.Cell>
-                                        <Table.Cell textAlign='center'>
-                                            <Button icon='chevron left' /> &nbsp; test  &nbsp; <Button icon='chevron right' />
-                                        </Table.Cell>
-                                        <Table.Cell textAlign='center'>
-                                            test
-                                        </Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
-                                {/*<Table.Footer>*/}
-                                {/*{(this.state.drivers.length !== 0) ?*/}
-                                {/*<Table.Row>*/}
-                                {/*<Table.HeaderCell colSpan='6' textAlign='right'>*/}
-                                {/*<Pagination defaultActivePage={1}*/}
-                                {/*totalPages={tablePaginationFooter(this.state['fetchedDataSet'], 4)}*/}
-                                {/*onPageChange={(event, data) => {*/}
-                                {/*let dataSet = this.state['fetchedDataSet'];*/}
-                                {/*this.setState({'drivers': this.setDriverTableRows(dataSet ,4, data['activePage'])})*/}
-                                {/*}}/>*/}
-                                {/*</Table.HeaderCell>*/}
-                                {/*</Table.Row>*/}
-                                {/*:*/}
-                                {/*<Table.Row key={'emptyRowFooter'} textAlign={'center'}>*/}
-                                {/*<Table.HeaderCell colSpan='6' textAlign='center'>*/}
-                                {/*Sorry, No Content Available*/}
-                                {/*</Table.HeaderCell>*/}
-                                {/*</Table.Row>}*/}
-
-                                {/*</Table.Footer>*/}
-                            </Table>
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row centered={true} columns={1}>
-                        <Button onClick={() => {
-                            this.state.communicator("addNewDriverRedirect")
-                        }} content='Add New Order' style={{'backgroundColor': '#ff9300', 'color': '#ffffff'}}/>
-                    </Grid.Row>
-                </Grid>
-            </div>
+                   <Divider />
+                   <Grid columns='two'>
+                       <Grid.Row>
+                           <Grid.Column>
+                               <Button negative icon='trash' labelPosition='right' content='Delete Order' />
+                           </Grid.Column>
+                           <Grid.Column textAlign={'right'}>
+                               <Button positive icon='check circle' labelPosition='right' content='Check Out' />
+                           </Grid.Column>
+                       </Grid.Row>
+                   </Grid>
+               </Segment>
+                    </Grid.Column>
+                    <Grid.Column width={2}>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
 
         );
     }
