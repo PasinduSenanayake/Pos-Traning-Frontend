@@ -1,18 +1,15 @@
 import React, {Component} from 'react';
-import {
-    Grid, Header, Image, Table, Button, Pagination,Modal,Container,Divider,Icon
+import { Grid, Header, Image, Table, Button, Pagination,Modal,Container,Divider,Icon
 } from 'semantic-ui-react'
-import EditOrder from "./editOrder";
 
 class ViewOrders extends Component {
 
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
-            editView:false,
-            editViewData:{},
-            backendCom:{}
+            backendCom: props['frontEndCommunicator']
         }
+
     }
 
 
@@ -42,16 +39,12 @@ class ViewOrders extends Component {
             </Table.Row>
         );
     };
-    searchTableUpdate = (updatedState) => {
-        this.setState({drivers: this.setDriverTableRows(updatedState, 4, 1), fetchedDataSet: updatedState})
-    };
 
     render() {
         return (
 
 
             <div>
-                <EditOrder visibility ={this.state.editView} componentData={this.state.editViewData} communicator={this.state.backendCom}/>
                 <Grid centered={true} columns={3}>
                     <Grid.Row centered columns={1}>
                         <Grid.Column width={2} verticalAlign={'middle'} textAlign={'right'}>
@@ -77,7 +70,7 @@ class ViewOrders extends Component {
                                     {/*{Object.values(this.state.drivers).map(this.getTripTableRows)}*/}
                                     <Table.Row key={"testOrder"}>
                                         <Table.Cell collapsing textAlign='center'>
-                                            <Button icon='edit' onClick={()=>{this.setState({editView:true})}} /> &nbsp; &nbsp;
+                                            <Button loading name='spinner' onClick={()=>{this.setState({editView:true})}} /> &nbsp; &nbsp;
                                         </Table.Cell>
                                         <Table.Cell  selectable>
                                             <Header as='h4' textAlign='center'>
@@ -101,7 +94,7 @@ class ViewOrders extends Component {
                     </Grid.Row>
                     <Grid.Row centered={true} columns={1}>
                         <Button onClick={() => {
-                            this.state.communicator("addNewDriverRedirect")
+                            this.state.backendCom("createOrder")
                         }} content='Add New Order' style={{'backgroundColor': '#ff9300', 'color': '#ffffff'}}/>
                     </Grid.Row>
                 </Grid>

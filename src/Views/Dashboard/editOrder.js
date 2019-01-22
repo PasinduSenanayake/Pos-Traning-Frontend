@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+import React, {Component,createRef} from 'react';
 import { Dropdown,Input,
-    Grid, Header, Image, Table, Button, Pagination,Segment,Container,Divider,Icon
+    Grid, Header, Image, Table, Button, Ref,Segment,Container,Divider,Icon
 } from 'semantic-ui-react'
 
 class editOrder extends Component {
@@ -8,12 +8,108 @@ class editOrder extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            viewVisibility:props['visibility']
+            orderMeta:props['componentData'],
+            backCom:props['frontEndCommunicator'],
+            orderItems:props['componentData']['orderItems'],
+            allItems: props['secondaryComponentData'],
+            showItems:props['secondaryComponentData'].filter((element)=>{if(!props['componentData']['orderItems'].some(e => e.key === element['key'])){return element }}),
+            loadingState:"",
+            editingState:"",
+            orderTotal:0.00
         }
     }
 
+    createdRef = createRef();
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        console.log(nextProps);
+        if (nextProps['action']==="addItem" && nextProps['actionState']==="success") {
+            this.createdRef.current.textContent="Per Item Price : N/A";
+            this.refs.dataDropdown.clearValue();
+            this.refs.addQuantity.inputRef.value = '';
+            this.setState({orderItems: nextProps['orderItems'],
+                showItems:this.state.allItems.filter((element)=>{if(!nextProps['orderItems'].some(e => e.key === element['key'])){return element }})})
+
+        }
+        else if (nextProps['action']==="deleteItem" && nextProps['actionState']==="success") {
+            this.setState({orderItems: nextProps['orderItems'],
+                showItems:this.state.allItems.filter((element)=>{if(!nextProps['orderItems'].some(e => e.key === element['key'])){return element }})})
+        }
+        else if (nextProps['action']==="increaseItem" && nextProps['actionState']==="success") {
+            this.setState({orderItems: nextProps['orderItems']})
+        }
+    };
+
+
+
 
     render() {
+
+        const emptyTableRow = ()=>{
+            return (
+                <Table.Row>
+                    <Table.Cell colSpan={5} textAlign={'center'}>No Order Items</Table.Cell>
+                </Table.Row>
+            )
+        };
+
+        const getTableRows =  (orderItem)=>{
+            return (
+            <Table.Row>
+                <Table.Cell collapsing textAlign='center'>
+                    {(this.state.loadingState==="testLoader" ?
+                        <Icon loading  name='circle notch' color={'red'} size={'large'} /> :
+                        <Button icon='trash' color={'red'}  onClick={()=>{
+                            this.state.backCom('updateOrder',
+                                {
+                                    updateType:"delete",
+                                    orderId:this.state.orderMeta['uId'],
+                                    itemId:orderItem['code'],
+
+                                })
+                        }}/>)}
+                </Table.Cell>
+                <Table.Cell>
+                    <Header as='h4' image>
+                        <Image src='/images/avatar/small/matthew.png' rounded size='mini' />
+                        <Header.Content>
+                            {orderItem['name']}
+                            <Header.Subheader> {orderItem['code']}</Header.Subheader>
+                        </Header.Content>
+                    </Header>
+                </Table.Cell>
+                <Table.Cell>15</Table.Cell>
+                <Table.Cell>
+                    {(this.state.editingState === "testLoader") ?
+                        (this.state.loadingState === "testLoader")
+                            ? <Icon loading  name='circle notch' color={'green'} size={'large'} />
+                            :
+                            <Button  color={'green'} size='small' icon='checkmark'    onClick={()=>{
+                                this.state.backCom('updateOrder',
+                                    {
+                                        updateType:"update",
+                                        orderId:this.state.orderMeta['uId'],
+                                        itemId:orderItem['code'],
+                                        quantity:2
+
+                                    })
+                            }}/>
+
+                        :<Button basic size='small' icon='edit' onClick={() => {
+                            console.log(this.refs.inputRef)
+                        }}/>}
+                    &nbsp; &nbsp; &nbsp;
+                    {(this.state.editingState === "testLoader") ?
+                        <Input ref={'inputRef'} disabled={false} value={22}/>
+                        :
+                        <Input ref={'inputRef'} disabled={true} value={22}/>
+                    }
+
+                </Table.Cell>
+                <Table.Cell>Rs. 500.00</Table.Cell>
+            </Table.Row>
+            )
+        };
         return (
 
             <Grid>
@@ -39,19 +135,19 @@ class editOrder extends Component {
                    <Grid columns='two'>
                        <Grid.Row>
                            <Grid.Column>
-                               <h4>Order Id - 3479384734739798</h4>
+                               <h4>Order Id - {this.state.orderMeta['uId']}</h4>
                            </Grid.Column>
                            <Grid.Column textAlign={'right'}>
-                               <h4>Order Status - Incomplete</h4>
+                               <h4>Order Status - {this.state.orderMeta['state']}</h4>
                            </Grid.Column>
                        </Grid.Row>
 
                        <Grid.Row>
                            <Grid.Column>
-                               <h4> Order Created date - 3933/2323/323</h4>
+                               <h4> Order Created date - {this.state.orderMeta['createDate']}</h4>
                            </Grid.Column>
                            <Grid.Column textAlign={'right'}>
-                               <h4> Order Completed date - N/A</h4>
+                               <h4> Order Completed date - {this.state.orderMeta['completedDate']}</h4>
                            </Grid.Column>
                        </Grid.Row>
                    </Grid>
@@ -68,20 +164,41 @@ class editOrder extends Component {
                            <Grid.Row >
                                <Grid.Column width={6}>
                                    <Dropdown
+                                       ref={'dataDropdown'}
+                                       options={this.state.showItems}
                                        fluid
+                                       clearable={true}
                                        selection
                                        search={true}
                                        placeholder='Search Items'
+                                       onChange={(value,data)=>{(data['value']==="")?
+                                           this.createdRef.current.textContent="Per Item Price : N/A"
+                                           :this.createdRef.current.textContent="Per Item Price : Rs "+parseFloat(data['value'].split("__")[1]).toFixed(2)}}
                                    />
                                </Grid.Column>
-                               <Grid.Column width={3} verticalAlign={'middle'}>
-                                   Per Item Price : N/A
+                               <Grid.Column  width={3} verticalAlign={'middle'}>
+                                   <Ref innerRef={this.createdRef}>
+                                      <Segment basic>  Per Item Price : N/A </Segment>
+                                   </Ref>
                                </Grid.Column>
                                <Grid.Column width={4} verticalAlign={'middle'}>
-                                   <Input  placeholder='Quantity' />
+                                   <Input  placeholder='Quantity' ref={"addQuantity"} />
                                </Grid.Column>
                                <Grid.Column width={3} verticalAlign={'middle'}>
-                                   <Button positive icon='add' labelPosition='left' content='Add Item' />
+                                   {(this.state.loadingState==="addLoader" ?
+                                       <Header as='h4' color={'green'}>  <Icon loading  name='circle notch' color={'green'} size={'big'} /> Adding ... </Header>
+                                       : <Button positive icon='add' labelPosition='left' content='Add Item'
+                                                 onClick={()=>{
+                                                     this.state.backCom('updateOrder',
+                                                     {
+                                                         updateType:"add",
+                                                         orderId:this.state.orderMeta['uId'],
+                                                         itemId:"testItem",
+                                                         quantity:2
+
+                                                     })
+                                                 }}/>)}
+
                                </Grid.Column>
                            </Grid.Row>
                        </Grid>
@@ -104,74 +221,7 @@ class editOrder extends Component {
                             </Table.Header>
 
                             <Table.Body>
-                                <Table.Row>
-                                    <Table.Cell collapsing textAlign='center'>
-                                        <Button icon='trash' color={'red'} />
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Header as='h4' image>
-                                            <Image src='/images/avatar/small/lena.png' rounded size='mini' />
-                                            <Header.Content>
-                                                Lena
-                                                <Header.Subheader>Human Resources</Header.Subheader>
-                                            </Header.Content>
-                                        </Header>
-                                    </Table.Cell>
-                                    <Table.Cell>22</Table.Cell>
-                                    <Table.Cell collapsing><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
-                                    <Table.Cell>Rs. 500.00</Table.Cell>
-                                </Table.Row>
-                                <Table.Row>
-                                    <Table.Cell collapsing textAlign='center'>
-                                        <Button icon='trash' color={'red'} />
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Header as='h4' image>
-                                            <Image src='/images/avatar/small/matthew.png' rounded size='mini' />
-                                            <Header.Content>
-                                                Matthew
-                                                <Header.Subheader>Fabric Design</Header.Subheader>
-                                            </Header.Content>
-                                        </Header>
-                                    </Table.Cell>
-                                    <Table.Cell>15</Table.Cell>
-                                    <Table.Cell><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
-                                    <Table.Cell>Rs. 500.00</Table.Cell>
-                                </Table.Row>
-                                <Table.Row>
-                                    <Table.Cell collapsing textAlign='center'>
-                                        <Button icon='trash' color={'red'} />
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Header as='h4' image>
-                                            <Image src='/images/avatar/small/lindsay.png' rounded size='mini' />
-                                            <Header.Content>
-                                                Lindsay
-                                                <Header.Subheader>Entertainment</Header.Subheader>
-                                            </Header.Content>
-                                        </Header>
-                                    </Table.Cell>
-                                    <Table.Cell>12</Table.Cell>
-                                    <Table.Cell><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
-                                    <Table.Cell>Rs. 500.00</Table.Cell>
-                                </Table.Row>
-                                <Table.Row>
-                                    <Table.Cell collapsing textAlign='center'>
-                                        <Button icon='trash' color={'red'} />
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Header as='h4' image>
-                                            <Image src='/images/avatar/small/mark.png' rounded size='mini' />
-                                            <Header.Content>
-                                                Mark
-                                                <Header.Subheader>Executive</Header.Subheader>
-                                            </Header.Content>
-                                        </Header>
-                                    </Table.Cell>
-                                    <Table.Cell>11</Table.Cell>
-                                    <Table.Cell><Button basic size='small' icon='edit' />  &nbsp; &nbsp; &nbsp;  <Input disabled value={22  } /></Table.Cell>
-                                    <Table.Cell>Rs. 500.00</Table.Cell>
-                                </Table.Row>
+                                {(this.state.orderItems.length === 0 )?emptyTableRow():Object.values(this.state.orderItems).map(getTableRows)}
                                 <Table.Row >
                                     <Table.Cell/>
                                     <Table.Cell/>
