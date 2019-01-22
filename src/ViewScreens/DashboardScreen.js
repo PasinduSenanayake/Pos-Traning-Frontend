@@ -14,7 +14,6 @@ class DashboardScreen extends Component {
         super(props);
         this.state = {
             liveComponent: <PageLoader/>,
-            componentUpdate:{}
         };
     }
 
@@ -42,8 +41,8 @@ class DashboardScreen extends Component {
         switch (itemResponse) {
             case 200:
                 this.setState({
-                    liveComponent: <EditOrder componentData={orderContent} secondaryComponentData={itemContent}
-                                              frontEndCommunicator={this.frontEndCommunicator}/>
+                    liveComponent: <EditOrder ref={(editComponent) => { this._updateComponent = editComponent }} componentData={orderContent} secondaryComponentData={itemContent}
+                                              frontEndCommunicator={this.frontEndCommunicator} />
                 });
                 break;
             case 401:
@@ -99,7 +98,7 @@ class DashboardScreen extends Component {
     }
 
 
-    async editOrder(orderUpdate) {
+    async editOrder(updateType,orderUpdate) {
         let response = null;
         let content = null;
         await updateOrderItem(orderUpdate).then((result) => {
@@ -108,7 +107,7 @@ class DashboardScreen extends Component {
         });
         switch (response) {
             case 200:
-                this.setState({componentUpdate:{}})
+                this._updateComponent.update({'action':updateType ,'actionState':'success' ,"orderItems":content})
                 break;
             case 401:
                 this.props.history.push('/login');
@@ -235,7 +234,7 @@ class DashboardScreen extends Component {
                 this.deleteOrder(args[0]).catch(this.errorScreen);
                 break;
             default:
-                this.errorScreen();
+                this.errorScreen()
         }
     };
 
