@@ -154,7 +154,8 @@ class editOrder extends Component {
                     <Table.Cell collapsing textAlign='center'>
                         {(this.state.loadingState === orderItem['code'] + "delete" ?
                             <Icon loading name='circle notch' color={'red'} size={'large'}/> :
-                            <Button icon='trash' color={'red'} disabled={this.state.editingState === orderItem['code']} onClick={() => {deleteItem(orderItem['code']);}}/>)}
+                            <Button icon='trash' color={'red'} disabled={this.state.editingState === orderItem['code'] || this.state.loadingState !=="" }
+                                    onClick={() => {deleteItem(orderItem['code']);}}/>)}
                     </Table.Cell>
                     <Table.Cell>
                         <Header as='h4' image>
@@ -171,9 +172,11 @@ class editOrder extends Component {
                             (this.state.loadingState === orderItem['code'] + "edit")
                                 ? <Icon loading name='circle notch' color={'green'} size={'large'}/>
                                 :
-                                <Button color={'green'} size='small' icon='checkmark' onClick={() => { updateItem(orderItem['code'], orderItem['quantity'])}}/>
+                                <Button color={'green'} size='small' icon='checkmark' disabled={ this.state.loadingState !=="" }
+                                        onClick={() => { updateItem(orderItem['code'], orderItem['quantity'])}}/>
 
-                            : <Button basic size='small' icon='edit' onClick={() => {
+                            : <Button basic size='small' icon='edit' disabled={ this.state.loadingState !=="" }
+                                      onClick={() => {
                                 this.setState({errorState: ""});
                                 setDefaultValue();
                                 this.setState({editingState: orderItem['code'] + "__" + orderItem['quantity']})
@@ -286,7 +289,7 @@ class editOrder extends Component {
                                                 <Grid.Column width={3} verticalAlign={'middle'}>
                                                     {(this.state.loadingState === "addItem" ?
                                                         <Header as='h4' color={'green'}> <Icon loading name='circle notch' color={'green'} size={'big'}/> Adding </Header>
-                                                        : <Button positive icon='add' labelPosition='left'
+                                                        : <Button positive icon='add' labelPosition='left' disabled={ this.state.loadingState !=="" }
                                                                   content='Add Item'
                                                                   onClick={() => {addItem()}}/>)}
 
@@ -335,11 +338,11 @@ class editOrder extends Component {
                                         <Grid columns='two'>
                                             <Grid.Row>
                                                 <Grid.Column>
-                                                    <Button negative icon='trash' labelPosition='right'
+                                                    <Button negative icon='trash' labelPosition='right' disabled={ this.state.loadingState !=="" }
                                                             content='Delete Order' onClick={()=>{this.state.backCom("deleteOrder",this.state.orderMeta['uId'])}}/>
                                                 </Grid.Column>
                                                 <Grid.Column textAlign={'right'}>
-                                                    <Button positive icon='check circle' labelPosition='right'
+                                                    <Button positive icon='check circle' labelPosition='right' disabled={ this.state.loadingState !=="" }
                                                             content='Check Out'/>
                                                 </Grid.Column>
                                             </Grid.Row>
