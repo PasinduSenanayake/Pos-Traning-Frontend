@@ -1,56 +1,58 @@
 import React, {Component} from 'react';
-import { Grid, Header, Image, Table, Button, Pagination,Modal,Container,Divider,Icon
-} from 'semantic-ui-react'
+import { Grid, Header, Table, Button, Container } from 'semantic-ui-react'
 
 class ViewOrders extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            backendCom: props['frontEndCommunicator']
+            ordersMeta:props['componentData'],
+            backCom: props['frontEndCommunicator']
         }
 
     }
-
-
-    getTripTableRows = (rowObj) => {
-        return (
-            <Table.Row key={rowObj['driverId']}>
-                <Table.Cell textAlign='center'>
-                    <Grid centered={true} columns={2}>
-                        <Grid.Row verticalAlign="middle">
-                            <Grid.Column>
-                                <Image src={rowObj['image']} circular size={"tiny"} centered/>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
-                </Table.Cell>
-                <Table.Cell selectable>
-                    <Header as='h4' textAlign='center'>
-                    </Header>
-                </Table.Cell>
-                <Table.Cell textAlign='center'> {rowObj['licenseNo']}</Table.Cell>
-                <Table.Cell textAlign='center'>
-                    {rowObj['contactNumber']}
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                    <b>{rowObj['email']}</b>
-                </Table.Cell>
-            </Table.Row>
-        );
-    };
-
     render() {
+
+        const emptyTableRow = () => {
+            return (
+                <Table.Row>
+                    <Table.Cell></Table.Cell>
+                    <Table.Cell colSpan={6} textAlign={'center'}>No Open Orders</Table.Cell>
+                </Table.Row>
+            )
+        };
+        const getTableRows = (orderItem) => {
+            return (
+                <Table.Row key={orderItem['uId']}>
+                    <Table.Cell collapsing textAlign='center'>
+                        <Button basic size='small' icon='edit' onClick={() => {this.state.backCom("editOrder",orderItem['uId'])}}/> &nbsp; &nbsp;
+                    </Table.Cell>
+                    <Table.Cell >
+                        <Header as='h4' textAlign='center'>
+                            {orderItem['uId']}
+                        </Header>
+                    </Table.Cell>
+                    <Table.Cell textAlign='center'>  {orderItem['state']}</Table.Cell>
+                    <Table.Cell textAlign='center'>
+                        {orderItem['createDate']}
+                    </Table.Cell>
+                    <Table.Cell textAlign='center'>
+                        {orderItem['completedDate']}
+                    </Table.Cell>
+                    <Table.Cell textAlign='center'>
+                        <b>Rs. {parseFloat(orderItem['totalAmount']).toFixed(2)}</b>
+                    </Table.Cell>
+                </Table.Row>
+            );
+        };
         return (
 
-
-            <div>
                 <Grid centered={true} columns={3}>
-                    <Grid.Row centered columns={1}>
-                        <Grid.Column width={2} verticalAlign={'middle'} textAlign={'right'}>
-                            <p> Order Id </p>
-                        </Grid.Column>
-                        <Grid.Column width={10} verticalAlign={'middle'}>
+                    <Grid.Row>
+                        <Grid.Column width={10}>
+                            <Container textAlign='center'>
+                                <Header>Sweets Orders </Header>
+                            </Container>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row centered={true} columns={1}>
@@ -67,38 +69,20 @@ class ViewOrders extends Component {
                                     </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                    {/*{Object.values(this.state.drivers).map(this.getTripTableRows)}*/}
-                                    <Table.Row key={"testOrder"}>
-                                        <Table.Cell collapsing textAlign='center'>
-                                            <Button loading name='spinner' onClick={()=>{this.setState({editView:true})}} /> &nbsp; &nbsp;
-                                        </Table.Cell>
-                                        <Table.Cell  selectable>
-                                            <Header as='h4' textAlign='center'>
-                                                TestId232323232
-                                            </Header>
-                                        </Table.Cell>
-                                        <Table.Cell textAlign='center'> Test</Table.Cell>
-                                        <Table.Cell textAlign='center'>
-                                            test
-                                        </Table.Cell>
-                                        <Table.Cell textAlign='center'>
-                                            test
-                                        </Table.Cell>
-                                        <Table.Cell textAlign='center'>
-                                            <b>test</b>
-                                        </Table.Cell>
-                                    </Table.Row>
+
+                                    {(this.state.ordersMeta.length === 0) ? emptyTableRow() : Object.values(this.state.ordersMeta).map(getTableRows)}
+
                                 </Table.Body>
                             </Table>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row centered={true} columns={1}>
                         <Button onClick={() => {
-                            this.state.backendCom("createOrder")
+                            this.state.backCom("createOrder")
                         }} content='Add New Order' style={{'backgroundColor': '#ff9300', 'color': '#ffffff'}}/>
                     </Grid.Row>
                 </Grid>
-            </div>
+
 
         );
     }

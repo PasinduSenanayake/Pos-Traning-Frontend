@@ -14,7 +14,7 @@ class LoginScreen extends Component {
 
     async initialize() {
             // No need await here, will be useful later
-        await this.setState({liveComponent: <Login loginData={true} frontEndCommunicator={this.frontEndCommunicator}/>})
+         this.setState({liveComponent: <Login loginData={true} frontEndCommunicator={this.frontEndCommunicator}/>})
     }
 
     componentDidMount() {

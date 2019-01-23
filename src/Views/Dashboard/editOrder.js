@@ -1,7 +1,5 @@
 import React, {Component, createRef} from 'react';
-import {
-    Dropdown, Input,
-    Grid, Header, Image, Table, Button, Ref, Segment, Container, Divider, Icon, Label, Transition
+import {Dropdown, Input,  Grid, Header, Image, Table, Button, Ref, Segment, Container, Divider, Icon, Label, Transition
 } from 'semantic-ui-react'
 import {totalAmountCalculater, unitAmountCalculater} from "../../Util/Support/PriceCalcutator";
 
@@ -32,35 +30,115 @@ class editOrder extends Component {
             this.createdRef.current.textContent = "Per Item Price : N/A";
             this.refs.dataDropdown.clearValue();
             this.refs.addQuantity.inputRef.value = '';
-            this.setState({
-                loadingState: "",
-                editingState: "",
-                orderItems: nextProps['orderItems'],
-                showItems: this.state.allItems.filter((element) => {
-                    if (!nextProps['orderItems'].some(e => e.key === element['key'])) {
-                        return element
-                    }
-                })
-            })
+            this.updateItem(nextProps['orderItems'])
 
         } else if (nextProps['action'] === "deleteItem" && nextProps['actionState'] === "success") {
-            this.setState({
-                loadingState: "",
-                editingState: "",
-                orderItems: nextProps['orderItems'],
-                showItems: this.state.allItems.filter((element) => {
-                    if (!nextProps['orderItems'].some(e => e.key === element['key'])) {
-                        return element
-                    }
-                })
-            })
+            this.updateItem(nextProps['orderItems'])
+
         } else if (nextProps['action'] === "updateItem" && nextProps['actionState'] === "success") {
             this.setState({loadingState: "", editingState: "", orderItems: nextProps['orderItems']})
         }
     };
 
+    updateItem(nextOrderItems){
+        this.setState({
+            loadingState: "",
+            editingState: "",
+            orderItems: nextOrderItems,
+            showItems: this.state.allItems.filter((element) => {
+                if (!nextOrderItems.some(e => e.key === element['key'])) {
+                    return element
+                }
+            })
+        })
+
+    }
+
 
     render() {
+
+        const setDefaultValue = ()=>{
+            let editState = this.state.editingState;
+
+            if (editState !== "") {
+                let prvState = editState.split("__");
+                this.refs[prvState[0]].inputRef.value = prvState[1]
+            }
+        };
+
+        const validate = (elementData,errorState)=>{
+            if (!isNaN(elementData)) {
+                this.setState({errorState: ""});
+
+            } else {
+                this.setState({errorState: errorState})
+
+            }
+
+        };
+
+        const addItem = ()=>{
+            if (this.refs.dataDropdown.state.value !== "") {
+                if (!isNaN(this.refs.addQuantity.inputRef.value)) {
+                    this.setState({loadingState: "addItem"});
+                    this.state.backCom('updateOrder', "addItem",
+                        {
+                            updateType: "add",
+                            orderId: this.state.orderMeta['uId'],
+                            itemId: this.refs.dataDropdown.state.value.split("__")[0],
+                            quantity: this.refs.addQuantity.inputRef.value
+                        })
+                } else {
+                    this.setState({errorState: "addQuantity"})
+                }
+            } else {
+                this.setState({errorState: "addItem"})
+            }
+        };
+
+        const deleteItem = (orderCode)=>{
+            setDefaultValue();
+            this.setState({loadingState: orderCode + "delete"});
+            this.state.backCom('updateOrder', "deleteItem",
+                {
+                    updateType: "delete",
+                    orderId: this.state.orderMeta['uId'],
+                    itemId: orderCode,
+
+                })
+
+        };
+
+        const updateItem = (orderCode,orderQuantity)=>{
+
+            if (!isNaN(this.refs[orderCode].inputRef.value)) {
+                this.setState({loadingState: orderCode + "edit"});
+                this.state.backCom('updateOrder', "updateItem",
+                    {
+                        updateType: "update",
+                        orderId: this.state.orderMeta['uId'],
+                        itemId: orderCode,
+                        quantity: this.refs[orderCode].inputRef.value
+
+                    })
+            } else {
+                this.setState({errorState:orderCode + "__" + orderQuantity})
+            }
+
+
+        };
+
+        const getErrorElement = (errorState,errorMessage,pointing=true)=>{
+            return(
+            <Transition
+                visible={(this.state.errorState === errorState)}
+                animation='scale' duration={100}>
+                <Label basic color='red' pointing={pointing}>
+                    {errorMessage}
+                </Label>
+            </Transition>
+            )
+        };
 
         const emptyTableRow = () => {
             return (
@@ -76,24 +154,7 @@ class editOrder extends Component {
                     <Table.Cell collapsing textAlign='center'>
                         {(this.state.loadingState === orderItem['code'] + "delete" ?
                             <Icon loading name='circle notch' color={'red'} size={'large'}/> :
-                            <Button icon='trash' color={'red'}
-                                    disabled={this.state.editingState === orderItem['code'] + "edit"} onClick={() => {
-                                let editState = this.state.editingState;
-
-                                if (editState !== "") {
-                                    editState = editState.slice(0, -4);
-                                    let prvState = editState.split("__");
-                                    this.refs[prvState[0]].inputRef.value = prvState[1]
-                                }
-                                this.setState({loadingState: orderItem['code'] + "delete"});
-                                this.state.backCom('updateOrder', "deleteItem",
-                                    {
-                                        updateType: "delete",
-                                        orderId: this.state.orderMeta['uId'],
-                                        itemId: orderItem['code'],
-
-                                    })
-                            }}/>)}
+                            <Button icon='trash' color={'red'} disabled={this.state.editingState === orderItem['code']} onClick={() => {deleteItem(orderItem['code']);}}/>)}
                     </Table.Cell>
                     <Table.Cell>
                         <Header as='h4' image>
@@ -106,64 +167,27 @@ class editOrder extends Component {
                     </Table.Cell>
                     <Table.Cell>{parseFloat(orderItem['unitPrice']).toFixed(2)}</Table.Cell>
                     <Table.Cell>
-                        {(this.state.editingState === orderItem['code'] + "__" + orderItem['quantity'] + "edit") ?
+                        {(this.state.editingState === orderItem['code'] + "__" + orderItem['quantity']) ?
                             (this.state.loadingState === orderItem['code'] + "edit")
                                 ? <Icon loading name='circle notch' color={'green'} size={'large'}/>
                                 :
-                                <Button color={'green'} size='small' icon='checkmark' onClick={() => {
-
-                                    if (!isNaN(this.refs[orderItem['code']].inputRef.value)) {
-
-                                        this.setState({loadingState: orderItem['code'] + "edit"});
-                                        this.state.backCom('updateOrder', "updateItem",
-                                            {
-                                                updateType: "update",
-                                                orderId: this.state.orderMeta['uId'],
-                                                itemId: orderItem['code'],
-                                                quantity: this.refs[orderItem['code']].inputRef.value
-
-                                            })
-
-                                    } else {
-                                        this.setState({errorState: orderItem['code'] + "__" + orderItem['quantity'] + "edit"})
-                                    }
-                                }}/>
+                                <Button color={'green'} size='small' icon='checkmark' onClick={() => { updateItem(orderItem['code'], orderItem['quantity'])}}/>
 
                             : <Button basic size='small' icon='edit' onClick={() => {
                                 this.setState({errorState: ""});
-                                let editState = this.state.editingState;
-
-                                if (editState !== "") {
-                                    editState = editState.slice(0, -4);
-                                    let prvState = editState.split("__");
-                                    this.refs[prvState[0]].inputRef.value = prvState[1]
-                                }
-                                this.setState({editingState: orderItem['code'] + "__" + orderItem['quantity'] + "edit"})
+                                setDefaultValue();
+                                this.setState({editingState: orderItem['code'] + "__" + orderItem['quantity']})
                             }}/>}
                         &nbsp; &nbsp; &nbsp;
-                        {(this.state.editingState === orderItem['code'] + "__" + orderItem['quantity'] + "edit") ?
+                        {(this.state.editingState === orderItem['code'] + "__" + orderItem['quantity']) ?
                             <Input ref={orderItem['code']} disabled={false} defaultValue={orderItem['quantity']}
-                                   onChange={() => {
-                                       if (!isNaN(this.refs[orderItem['code']].inputRef.value)) {
-                                           this.setState({errorState: ""});
+                                   onChange={() => {validate(this.refs[orderItem['code']].inputRef.value,orderItem['code'] + "__" + orderItem['quantity'])}}/>
+                            :
+                            <Input id={orderItem['code']} ref={orderItem['code']} disabled={true}
+                                   defaultValue={orderItem['quantity']}/>
+                        }
 
-                                       } else {
-                                           this.setState({errorState: orderItem['code'] + "__" + orderItem['quantity'] + "edit"})
-
-                                       }
-                                   }
-                                   }/>
-                                       :
-                                       <Input id={orderItem['code']} ref={orderItem['code']} disabled={true}
-                                       defaultValue={orderItem['quantity']}/>
-                                   }
-                            <Transition
-                                visible={(this.state.errorState === orderItem['code'] + "__" + orderItem['quantity'] + "edit")}
-                                animation='scale' duration={100}>
-                                <Label basic color='red'>
-                                    Please enter quantity
-                                </Label>
-                            </Transition>
+                        {getErrorElement(orderItem['code'] + "__" + orderItem['quantity'],"Please enter quantity",false)}
 
                             </Table.Cell>
                             <Table.Cell>Rs. {unitAmountCalculater(orderItem)}</Table.Cell>
@@ -176,7 +200,7 @@ class editOrder extends Component {
                             <Grid.Row>
                                 <Grid.Column width={3}>
                                     <Container textAlign='right'>
-                                        <Button positive icon='reply' labelPosition='right' content='back'/>
+                                        <Button positive icon='reply' labelPosition='right' content='back' onClick={()=>{this.state.backCom('back')}}/>
                                     </Container>
                                 </Grid.Column>
                                 <Grid.Column width={10}>
@@ -243,13 +267,10 @@ class editOrder extends Component {
                                                         }
                                                         }
                                                     />
-                                                    <Transition ref={'errorLabelD'}
-                                                                visible={(this.state.errorState === "addItem")}
-                                                                animation='scale' duration={100}>
-                                                        <Label basic color='red' pointing>
-                                                            Please enter an Item
-                                                        </Label>
-                                                    </Transition>
+
+
+                                                    {getErrorElement("addItem","Please enter an Item")}
+
                                                 </Grid.Column>
                                                 <Grid.Column width={3} verticalAlign={'middle'}>
                                                     <Ref innerRef={this.createdRef}>
@@ -258,48 +279,16 @@ class editOrder extends Component {
                                                 </Grid.Column>
                                                 <Grid.Column width={4} verticalAlign={'middle'}>
                                                     <Input placeholder='Quantity' ref={"addQuantity"}
-                                                           onChange={(event, data) => {
-                                                               if (!isNaN(data['value'])) {
-                                                                   this.setState({errorState: ""})
-                                                               } else {
-                                                                   this.setState({errorState: "addQuantity"})
-                                                               }
-                                                           }}/>
-                                                    <Transition ref={'errorLabelD'}
-                                                                visible={(this.state.errorState === "addQuantity")}
-                                                                animation='scale' duration={100}>
-                                                        <Label basic color='red' pointing>
-                                                            Please enter quantity
-                                                        </Label>
-                                                    </Transition>
+                                                           onChange={(event, data) => {validate(data['value'],"addQuantity")}}/>
+                                                    {getErrorElement("addQuantity","Please enter quantity")}
+
                                                 </Grid.Column>
                                                 <Grid.Column width={3} verticalAlign={'middle'}>
                                                     {(this.state.loadingState === "addItem" ?
-                                                        <Header as='h4' color={'green'}> <Icon loading
-                                                                                               name='circle notch'
-                                                                                               color={'green'}
-                                                                                               size={'big'}/> Adding
-                                                            ... </Header>
+                                                        <Header as='h4' color={'green'}> <Icon loading name='circle notch' color={'green'} size={'big'}/> Adding </Header>
                                                         : <Button positive icon='add' labelPosition='left'
                                                                   content='Add Item'
-                                                                  onClick={() => {
-                                                                      if (this.refs.dataDropdown.state.value !== "") {
-                                                                          if (!isNaN(this.refs.addQuantity.inputRef.value)) {
-                                                                              this.setState({loadingState: "addItem"});
-                                                                              this.state.backCom('updateOrder', "addItem",
-                                                                                  {
-                                                                                      updateType: "add",
-                                                                                      orderId: this.state.orderMeta['uId'],
-                                                                                      itemId: this.refs.dataDropdown.state.value.split("__")[0],
-                                                                                      quantity: this.refs.addQuantity.inputRef.value
-                                                                                  })
-                                                                          } else {
-                                                                              this.setState({errorState: "addQuantity"})
-                                                                          }
-                                                                      } else {
-                                                                          this.setState({errorState: "addItem"})
-                                                                      }
-                                                                  }}/>)}
+                                                                  onClick={() => {addItem()}}/>)}
 
                                                 </Grid.Column>
                                             </Grid.Row>
@@ -347,7 +336,7 @@ class editOrder extends Component {
                                             <Grid.Row>
                                                 <Grid.Column>
                                                     <Button negative icon='trash' labelPosition='right'
-                                                            content='Delete Order'/>
+                                                            content='Delete Order' onClick={()=>{this.state.backCom("deleteOrder",this.state.orderMeta['uId'])}}/>
                                                 </Grid.Column>
                                                 <Grid.Column textAlign={'right'}>
                                                     <Button positive icon='check circle' labelPosition='right'

@@ -1,10 +1,9 @@
-
-const updateOrderItem = async (orderUpdate) =>{
+const updateOrderItem = async (orderUpdate) => {
 
     let response = {
-        status : 120,
-        content:{},
-        error:{}
+        status: 120,
+        content: {},
+        error: {}
     };
     let fetchedResponse = {};
 
@@ -13,90 +12,99 @@ const updateOrderItem = async (orderUpdate) =>{
             "Content-Type": "application/json",
             "cache-control": "no-cache",
         },
-        credentials:"include",
-        method: 'post',
+        credentials: "include",
+        method: 'put',
         body: JSON.stringify(orderUpdate)
 
-    }).then((fetchResponse)=> {
-
-        if(fetchResponse['status']===200){
-            fetchedResponse = fetchResponse;
-            response['status'] =200;
+    }).then((fetchResponse) => {
+        response['status'] = fetchResponse['status'];
+        switch (fetchResponse['status']) {
+            case 200:
+                fetchedResponse = fetchResponse;
+                break;
+            default:
+                break;
         }
-
-
-    }).catch( function(error) {
+    }).catch(function (error) {
         response['status'] = 280;
         console.log(error)
     });
 
-    if(response['status']===200){
+    if (response['status'] === 200) {
         response['content'] = await fetchedResponse.json();
     }
-    else if(response['status']===120){
-        response['status'] = 401;
-    }
-
     return response
 };
 
-const createNewOrder = async () =>{
+const createNewOrder = async () => {
 
     let response = {
-        status : 120,
-        content:{},
-        error:{}
+        status: 120,
+        content: {},
+        error: {}
     };
-    let fetchedResponse = {};
+
+    let responseData = null;
 
     await fetch("http://localhost:8080/api/order/create", {
         headers: {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
         },
-        credentials:"include",
+        credentials: "include",
         method: 'get',
 
-    }).then((fetchResponse)=> {
+    }).then((fetchResponse) => {
+        response['status'] = fetchResponse['status'];
 
-        if(fetchResponse['status']===200){
-            fetchedResponse = fetchResponse;
-            response['status'] =200;
+        switch (fetchResponse['status']) {
+            case 200:
+                responseData = fetchResponse;
+                break;
+            default:
+                break;
         }
 
-
-    }).catch( function(error) {
+    }).catch(function (error) {
         response['status'] = 280;
-        console.log(error)
+        response['error'] = error;
     });
 
-    if(response['status']===200){
-        response['content'] = await fetchedResponse.json();
+    if (responseData !== null) {
+        await responseData.text().then((value) => {
+            response['content'] = value;
+        })
     }
-    else if(response['status']===120){
-        response['status'] = 401;
-    }
-
-    console.log(response)
-
     return response
-
 };
 
 
-const deleteOrderData = (orderData) =>{
+const deleteOrderData = async (orderId) => {
 
     let response = {
-        status : 120,
-        content:{},
-        error:{}
+        status: 120,
+        content: {},
+        error: {}
     };
 
+    await fetch("http://localhost:8080/api/order/deleteOrder?orderId=" + orderId, {
+        headers: {
+            "Content-Type": "application/json",
+            "cache-control": "no-cache",
+        },
+        credentials: "include",
+        method: 'delete',
+
+    }).then((fetchResponse) => {
+        response['status'] = fetchResponse['status'];
+
+    }).catch(function (error) {
+        response['status'] = 280;
+        response['error'] = error;
+    });
+
     return response
-
 };
-
-
 
 
 export {
@@ -109,3 +117,4 @@ export {
 //status code :200 => Success
 //status code :401 => Unauthorized
 //status code :280 => no connection
+//status code :500 => server error

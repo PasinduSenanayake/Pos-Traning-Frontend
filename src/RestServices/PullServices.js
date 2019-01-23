@@ -9,7 +9,7 @@ const getAllOrders = async () =>{
 
     let fetchedResponse = {};
 
-    await fetch("http://localhost:8080/api/order/allOpen", {
+    await fetch("http://localhost:8080/api/order/getAllOpenOrders", {
         headers: {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -48,7 +48,7 @@ const getOrder = async (orderId) =>{
         error:{}
     };
 
-    let fetchedResponse = {};
+    let responseData = null;
 
     await fetch("http://localhost:8080/api/order/getOrder?orderId="+orderId, {
         headers: {
@@ -59,21 +59,26 @@ const getOrder = async (orderId) =>{
         method: 'get',
 
     }).then((fetchResponse)=> {
-        if(fetchResponse['status']===200){
-            fetchedResponse = fetchResponse;
-            response['status'] =200;
+        response['status'] =fetchResponse['status'];
+
+        switch (fetchResponse['status']) {
+            case 200:
+                responseData = fetchResponse;
+                break;
+            default:
+                break;
         }
 
     }).catch( function(error) {
         response['status'] = 280;
-        console.log(error)
+        response['error'] = error;
     });
     if(response['status']===200){
-        response['content'] = await fetchedResponse.json();
+        await  responseData.json().then((value) => {
+            response['content'] = value;
+        })
     }
-    else if(response['status']===120){
-        response['status'] = 401;
-    }
+
     return response
 
 };
@@ -87,7 +92,7 @@ const getAllItems = async () =>{
         error:{}
     };
 
-    let fetchedResponse = {};
+    let responseData = {};
     await fetch("http://localhost:8080/api/item/all", {
         headers: {
             "Content-Type": "application/json",
@@ -97,9 +102,14 @@ const getAllItems = async () =>{
         method: 'get',
 
     }).then((fetchResponse)=> {
-        if(fetchResponse['status']===200){
-            fetchedResponse = fetchResponse;
-            response['status'] =200;
+        response['status'] =fetchResponse['status'];
+
+        switch (fetchResponse['status']) {
+            case 200:
+                responseData = fetchResponse;
+                break;
+            default:
+                break;
         }
 
     }).catch( function(error) {
@@ -107,11 +117,10 @@ const getAllItems = async () =>{
         console.log(error)
     });
     if(response['status']===200){
-        response['content'] = await fetchedResponse.json();
+        await  responseData.json().then((value) => {
+            response['content'] = value;
+        });
         response['content'] = response['content'].map(mapItem);
-    }
-    else if(response['status']===120){
-        response['status'] = 401;
     }
     return response
 
@@ -142,3 +151,4 @@ export {
 //status code :200 => Success
 //status code :401 => Unauthorized
 //status code :280 => no connection
+//status code :500 => server error
