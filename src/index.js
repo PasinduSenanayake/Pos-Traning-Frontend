@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import Missing from './Missing'
+import Error from './Error'
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter ,Switch,Redirect} from 'react-router-dom'
 import {Route} from "react-router-dom";
@@ -40,6 +41,8 @@ ReactDOM.render(
                     return <LoginScreen />
                 }
             }} />
+
+            <Route exact path='/error' component={Error}/>
 
             <Route component={Missing} />
         </Switch>
