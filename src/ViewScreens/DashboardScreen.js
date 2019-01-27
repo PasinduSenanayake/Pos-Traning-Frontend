@@ -13,7 +13,7 @@ class DashboardScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            liveComponent: null,
+            liveComponent: <PageLoader/>,
             lostConnection: false,
         };
     }
@@ -28,10 +28,10 @@ class DashboardScreen extends Component {
     }
 
 
-    errorRedirect(errorStatus, command, ...args) {
+    errorRedirect(errorStatus) {
         switch (errorStatus) {
             case 500:
-                this.props.history.push('/login');
+                this.props.history.push('/error');
                 break;
             case 401:
                 this.props.history.push('/login');
@@ -39,8 +39,8 @@ class DashboardScreen extends Component {
             case 280:
                 this.setState({lostConnection: true});
                 this.retryInterval = setInterval(() => {
-                    this.frontEndCommunicator(command, ...args)
-                }, 5000)
+                    this.initialize()
+                }, 5000);
                 break;
             case 120:
                 this.props.history.push('/error');
@@ -62,7 +62,10 @@ class DashboardScreen extends Component {
         switch (response) {
             case 200:
                 if(this.retryInterval) {
-                    clearInterval(this.retryInterval);}
+                    clearInterval(this.retryInterval);
+                    this.retryInterval = null;
+                }
+
                 this.setState({
                     liveComponent: <ViewOrders componentData={content} frontEndCommunicator={this.frontEndCommunicator}/>,lostConnection:false});
 
@@ -103,25 +106,23 @@ class DashboardScreen extends Component {
                 });
                 switch (itemResponse) {
                     case 200:
-                        if(this.retryInterval) {
-                            clearInterval(this.retryInterval);
-                        }
-                        this.setState({
-                            liveComponent: <EditOrder ref={(editComponent) => {
-                                this._updateComponent = editComponent
-                            }} componentData={orderContent} secondaryComponentData={itemContent}
-                                                      frontEndCommunicator={this.frontEndCommunicator}/>,
-                            lostConnection:false});
+                            this.setState({
+                                liveComponent: <EditOrder ref={(editComponent) => {
+                                    this._updateComponent = editComponent
+                                }} componentData={orderContent} secondaryComponentData={itemContent}
+                                                          frontEndCommunicator={this.frontEndCommunicator}/>,
+                                lostConnection: false
+                            });
                         break;
                     default:
                         if (!this.state.lostConnection) {
-                            this.errorRedirect(itemResponse, "editOrder", orderId)
+                            this.errorRedirect(itemResponse)
                         }
                 }
                 break;
             default:
                 if (!this.state.lostConnection) {
-                this.errorRedirect(orderResponse, "editOrder", orderId)
+                this.errorRedirect(orderResponse)
             }
         }
 
@@ -137,15 +138,16 @@ class DashboardScreen extends Component {
         });
         switch (response) {
             case 200:
-                if(this.retryInterval) {
-                    clearInterval(this.retryInterval);
-                }
-                this.setState({lostConnection:false});
-                this._updateComponent.update({'action': updateType, 'actionState': 'success', "orderItems": content})
+                    this.setState({lostConnection: false});
+                    this._updateComponent.update({
+                        'action': updateType,
+                        'actionState': 'success',
+                        "orderItems": content
+                    })
                 break;
             default:
                 if (!this.state.lostConnection) {
-                    this.errorRedirect(response, "updateOrder", updateType, orderUpdate)
+                    this.errorRedirect(response)
                 }
         }
 
@@ -163,9 +165,6 @@ class DashboardScreen extends Component {
         });
         switch (orderResponse) {
             case 200:
-                if(this.retryInterval) {
-                    clearInterval(this.retryInterval);
-                }
                 this.editOrderView(orderContent).catch(this.errorScreen);
                 break;
             default:
@@ -183,9 +182,6 @@ class DashboardScreen extends Component {
         });
         switch (response) {
             case 200:
-                if(this.retryInterval) {
-                    clearInterval(this.retryInterval);
-                }
                 this.initialize().catch(this.errorScreen);
                 break;
             default:

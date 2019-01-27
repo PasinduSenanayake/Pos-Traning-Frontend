@@ -2,7 +2,8 @@ import React, {Component, createRef} from 'react';
 import {Dropdown, Input,  Grid, Header, Image, Table, Button, Ref, Segment, Container, Divider, Icon, Label, Transition
 } from 'semantic-ui-react'
 import {totalAmountCalculater, unitAmountCalculater} from "../../Util/Support/PriceCalcutator";
-
+import {isPNum} from "../../Util/Support/Validator";
+import sweetImg from "../../Util/Assets/sweets/sweet.png"
 class editOrder extends Component {
 
     constructor(props) {
@@ -12,11 +13,7 @@ class editOrder extends Component {
             backCom: props['frontEndCommunicator'],
             orderItems: props['componentData']['orderItems'],
             allItems: props['secondaryComponentData'],
-            showItems: props['secondaryComponentData'].filter((element) => {
-                if (!props['componentData']['orderItems'].some(e => e.key === element['key'])) {
-                    return element
-                }
-            }),
+            showItems: props['secondaryComponentData'].filter((element) => (!props['componentData']['orderItems'].some(e => e.code === element['key']))),
             loadingState: "",
             editingState: "",
             errorState: ""
@@ -45,11 +42,7 @@ class editOrder extends Component {
             loadingState: "",
             editingState: "",
             orderItems: nextOrderItems,
-            showItems: this.state.allItems.filter((element) => {
-                if (!nextOrderItems.some(e => e.key === element['key'])) {
-                    return element
-                }
-            })
+            showItems: this.state.allItems.filter((element) => (!nextOrderItems.some(e => e.code === element['key'])))
         })
 
     }
@@ -67,7 +60,7 @@ class editOrder extends Component {
         };
 
         const validate = (elementData,errorState)=>{
-            if (!isNaN(elementData)) {
+            if (isPNum(elementData)) {
                 this.setState({errorState: ""});
 
             } else {
@@ -79,7 +72,7 @@ class editOrder extends Component {
 
         const addItem = ()=>{
             if (this.refs.dataDropdown.state.value !== "") {
-                if (!isNaN(this.refs.addQuantity.inputRef.value)) {
+                if (isPNum(this.refs.addQuantity.inputRef.value)) {
                     this.setState({loadingState: "addItem"});
                     this.state.backCom('updateOrder', "addItem",
                         {
@@ -111,7 +104,7 @@ class editOrder extends Component {
 
         const updateItem = (orderCode,orderQuantity)=>{
 
-            if (!isNaN(this.refs[orderCode].inputRef.value)) {
+            if (isPNum(this.refs[orderCode].inputRef.value)) {
                 this.setState({loadingState: orderCode + "edit"});
                 this.state.backCom('updateOrder', "updateItem",
                     {
@@ -159,7 +152,7 @@ class editOrder extends Component {
                     </Table.Cell>
                     <Table.Cell>
                         <Header as='h4' image>
-                            <Image src='/images/avatar/small/matthew.png' rounded size='mini'/>
+                            <Image src={sweetImg} alt="sweet" rounded size='large'/>
                             <Header.Content>
                                 {orderItem['name']}
                                 <Header.Subheader> {orderItem['code']}</Header.Subheader>
