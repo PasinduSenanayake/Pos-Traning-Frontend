@@ -18,18 +18,15 @@ const logOut = async ()=>{
         method: 'post',
         body: JSON.stringify({ })
 
-    }).then((fetchResponse)=> {
-        if(fetchResponse['status']===200){
-            response['status'] =200;
-            setAuthentication(false);
-        }
-
-
+    }).then((responseData)=> {
+        response['status'] = responseData['status']
     }).catch( function(error) {
-        setAuthentication(true);
         response['status'] = 280;
         console.log(error)
     });
+    if(response['status']===200){
+        setAuthentication(false);
+    }
 
     return response;
 };
@@ -63,7 +60,6 @@ const authenticate = async (userName, password)=>{
         setAuthentication(auth);
 
     }).catch( function(error) {
-        setAuthentication(false);
         response['status'] = 280;
         console.log(error)
     });

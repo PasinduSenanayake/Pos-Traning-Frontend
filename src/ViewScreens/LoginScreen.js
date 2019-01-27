@@ -14,7 +14,7 @@ class LoginScreen extends Component {
 
     async initialize() {
             // No need await here, will be useful later
-         this.setState({liveComponent: <Login loginData={true} frontEndCommunicator={this.frontEndCommunicator}/>})
+         this.setState({liveComponent: <Login loginAccess={""} frontEndCommunicator={this.frontEndCommunicator}/>})
     }
 
     componentDidMount() {
@@ -23,6 +23,7 @@ class LoginScreen extends Component {
             }
         );
     }
+
 
     errorScreen = () => {
         this.props.history.push('/error')
@@ -37,10 +38,10 @@ class LoginScreen extends Component {
                 this.props.history.push('/dashboard');
                 break;
             case 401:
-                this.setState({liveComponent: <Login loginData={false} frontEndCommunicator={this.frontEndCommunicator}/>});
+                this.setState({liveComponent: <Login loginAccess={"Wrong Username or Password"} frontEndCommunicator={this.frontEndCommunicator}/>});
                 break;
             case 280:
-                this.setState({liveComponent: <Login loginData={false} frontEndCommunicator={this.frontEndCommunicator}/>});
+                this.setState({liveComponent: <Login loginAccess={"No connection, Please retry later"} frontEndCommunicator={this.frontEndCommunicator}/>});
                 break;
             default:
                 this.errorScreen()

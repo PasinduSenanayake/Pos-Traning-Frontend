@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
-
+import { Button, Form, Grid, Header, Image, Message, Segment ,Container} from 'semantic-ui-react'
+import sweetImg from "../../Util/Assets/sweets/sweet.png"
 class Login extends Component {
 
         constructor(props){
             super(props);
             this.state = {
                 backendCom : props['frontEndCommunicator'],
-                errorState : props['loginData'] ? null : "Bad Credentials",
+                errorState : props['loginAccess'],
                 userName : null,
                 password :null,
             }
@@ -28,10 +28,16 @@ class Login extends Component {
                 <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
                     <Grid.Column style={{ maxWidth: 450 }}>
                         <Header as='h2' color='teal' textAlign='center'>
-                            <Image src='/logo.png' /> Log-in to your account
+                            <Image src={sweetImg} /> Log-in to your account
                         </Header>
                         <Form size='large'>
                             <Segment stacked>
+
+                                <Container>
+                                    { (this.state.errorState === "") ? ""
+                                        : <Header as='h5' color='red'> {this.state.errorState }</Header> }
+                                </Container>
+                                <br/>
                                 <Form.Input fluid icon='user' iconPosition='left' placeholder='Username'
                                             onChange = {(event,data)=>this.setState({userName:data['value']})}/>
                                 <Form.Input
@@ -48,6 +54,7 @@ class Login extends Component {
                                         color='teal' fluid size='large'>
                                     Login
                                 </Button>
+
                             </Segment>
                         </Form>
                         <Message>
